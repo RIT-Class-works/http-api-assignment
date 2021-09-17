@@ -7,6 +7,57 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
 
+    const sendBtn = document.querySelector('#send');
+    const content = document.querySelector('#content');
+
+    const responseHandler = (xhr)=>{
+      
+      if(content.children.length <=0){
+        const h1 = document.createElement('h1');
+        const p = document.createElement('p');
+        content.appendChild(h1);
+        content.appendChild(p);
+      }
+      const h1 = document.querySelector('h1');
+      const p = document.querySelector('p');
+      
+      //check the type of response
+      const type = xhr.getResponseHeader('content-type');
+
+      if(type === "application/json"){
+        const obj = JSON.parse(xhr.response);
+        console.log(obj.id);
+        h1.innerHTML = obj.id;
+        p.innerHTML  = obj.message;
+      }
+      else if(type === "text/xml"){
+        //read xml
+        h1.textContent = xhr.responseXML.querySelector('b').textContent;
+        p.textContent  = xhr.responseXML.querySelector('p').textContent;
+      }
+      else{
+        console.log("unanticipated error on client receiving side");
+      }
+
+      
+    }
+
+    sendBtn.addEventListener('click', ()=>{
+      const contentType = document.querySelector('#type').value;
+      const url = document.querySelector('#page').value;
+      console.log(url);
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", url);
+
+      xhr.setRequestHeader("Accept", contentType);
+
+      xhr.onload = ()=> responseHandler(xhr);
+
+      xhr.send();
+    });
+
+
+
   </script>
 </head>
 <body>
